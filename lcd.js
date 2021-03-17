@@ -5,12 +5,16 @@ var view = {
     },
     displayHit: function(location) {
         var cell = document.getElementById(location);
-        cell.setAttribute("class","hit");
+        cell.setAttribute("class","enemyship");
 
     },
     displayMiss: function(location) {
         var cell = document.getElementById(location);
-        cell.setAttribute("class", "miss"); 
+        cell.setAttribute("class", "shot"); 
+    },
+    displayPlayer: function(location) {
+        var cell = document.getElementById(location);
+        cell.setAttribute("class", "playership"); 
     },
     displayNothing: function(location) {
         var cell = document.getElementById(location);
@@ -46,32 +50,32 @@ var model = {
             var currentShot = column;
  
             
-            var x = 5;
+            var x = 1;
             var intervalID = window.setInterval(function () {
 
                 switch(newIndex) {
                     case 3:
-                        playerShot1.moveUp(x, currentShot);
+                        playerShot1.moveRight(currentShot, x);
                         break;
                     case 2:
-                        playerShot2.moveUp(x, currentShot);
+                        playerShot2.moveRight(currentShot, x);
                         break;
                     case 1:
-                        playerShot3.moveUp(x, currentShot);
+                        playerShot3.moveRight(currentShot, x);
 
                     default:
                       // code block
                   }
 
-                x--;
+                x++;
             
-                if (x === -2) {
+                if (x === 8) {
 
                     window.clearInterval(intervalID);
                 
                 }
             }, 300);
-            if(controller.ammo.length == 0){
+            if(newIndex == 0){
                 controller.reset();
                 
 
@@ -103,18 +107,18 @@ var model = {
 
 function playerShot(){
     this.shotMarker = "x";
-    this.moveUp = function(current, column){
+    this.moveRight = function(current, column){
   
         this.shotMarker = current + column;
-        previousMarkerUp = (current + 1) + column;
+        previousMarkerUp = current + (column - 1);
 
     
-        if(current == 5){
+        if(current == 1){
     
             view.displayMiss(this.shotMarker);
     
         }
-        else if(current == -1){
+        else if(current == 7){
     
             view.displayNothing(previousMarkerUp);
     
@@ -161,7 +165,7 @@ function enemyShip(shipName){
 }
 
 
-enemyShip.prototype.moveDown = function(current, column){
+enemyShip.prototype.moveLeft = function(current, column){
 
     this.shipMarker = current + column;
     this.nextShipMarker = current + (column + 1);
@@ -238,12 +242,12 @@ enemyShip.prototype.enemyMove = function(startPoint, interval){
 
                 }, 40);
 
-            self.moveDown(startPoint, x);
+            self.moveLeft(startPoint, x);
 
             x--;
 
 
-            if (x === 0 || !self.enemyState) {
+            if (x === -1 || !self.enemyState) {
                 
                 window.clearInterval(intervalID);
                 if(!self.enemyState){
@@ -261,7 +265,7 @@ enemyShip.prototype.enemyMove = function(startPoint, interval){
     
 };
 
-var moveLeft = function(){
+var movePlayerUp = function(){
 
     if(controller.playerMarker == 0){
 
@@ -270,13 +274,13 @@ var moveLeft = function(){
         previousMarker = controller.playerMarker;
         controller.playerMarker = controller.playerMarker -1;
 
-        view.displayNothing("6" + previousMarker);
-        view.displayMiss("6"+ controller.playerMarker);
+        view.displayNothing(previousMarker + "0");
+        view.displayPlayer(controller.playerMarker + "0");
 
     }
 }
 
-var moveRight = function(){
+var movePlayerDown = function(){
 
     if(controller.playerMarker == 6){
 
@@ -286,8 +290,8 @@ var moveRight = function(){
         controller.playerMarker = controller.playerMarker +1;
 
 
-        view.displayNothing("6" + previousMarker);
-        view.displayMiss("6"+ controller.playerMarker);
+        view.displayNothing(previousMarker + "0");
+        view.displayPlayer(controller.playerMarker + "0");
 
     }
     
@@ -296,13 +300,13 @@ var moveRight = function(){
 
 function handleKeyPress(e) {
 
-    if (e.keyCode === 37) {
+    if (e.keyCode === 38) {
 
-        moveLeft();
+        movePlayerUp();
     }
-    else if(e.keyCode === 39){
+    else if(e.keyCode === 40){
 
-        moveRight();
+        movePlayerDown();
 
     }
     else if(e.keyCode === 65) {
@@ -342,7 +346,7 @@ function init() {
     enemy1.enemyMove("3", 7000);
     
 
-    view.displayMiss("73");
+    view.displayPlayer("30");
 
     document.addEventListener("keydown", handleKeyPress);
 
