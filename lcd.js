@@ -113,12 +113,12 @@ function playerShot(){
         previousMarkerUp = current + (column - 1);
 
     
-        if(current == 1){
+        if(column == 1){
     
             view.displayMiss(this.shotMarker);
     
         }
-        else if(current == 7){
+        else if(column == 7){
     
             view.displayNothing(previousMarkerUp);
     
@@ -171,7 +171,7 @@ enemyShip.prototype.moveLeft = function(current, column){
     this.nextShipMarker = current + (column + 1);
     this.previousShipMarker = current + (column + 1);
 
-    console.log(this.shipMarker);
+
 
     // this.shipMarker = column + current;
     // this.nextShipMarker = column + (current + 1);
@@ -205,7 +205,8 @@ enemyShip.prototype.colission = function() {
     else{
 
         if(playerShot3.shotMarker.toString() == this.nextShipMarker.toString() || playerShot2.shotMarker.toString() == this.nextShipMarker.toString() || playerShot1.shotMarker.toString() == this.nextShipMarker.toString()){
-            console.log(this.enemyName + " shot");    
+            console.log(this.enemyName + " shot");  
+              
             this.enemyState = false;
         }
         //this.enemyState = true;
@@ -214,11 +215,11 @@ enemyShip.prototype.colission = function() {
 };
 
 enemyShip.prototype.enemyMove = function(startPoint, interval){
-    this.enemyState = true;
+    
     var self = this;
 
     setInterval(function(){
-        
+        self.enemyState = true;        
         var x = 7;
 
         //maybe set interval id's to different variables to prevent freezing
@@ -228,9 +229,7 @@ enemyShip.prototype.enemyMove = function(startPoint, interval){
             
             var y = 0;
 
-                var innerIntervalID = window.setInterval(function() {
-                   
-                    
+                var innerIntervalID = window.setInterval(function() {                   
                     self.colission();
                     y++
 
@@ -244,7 +243,6 @@ enemyShip.prototype.enemyMove = function(startPoint, interval){
 
             self.moveLeft(startPoint, x);
 
-            x--;
 
 
             if (x === -1 || !self.enemyState) {
@@ -254,11 +252,13 @@ enemyShip.prototype.enemyMove = function(startPoint, interval){
                     score++;
                     view.displayMessage(score);
                     window.clearInterval(intervalID);
-                    self.enemyState = true;
+                    //self.enemyState = true;
 
                 }
 
             }
+
+            x--;
         }, 900);
 
     }, interval);
