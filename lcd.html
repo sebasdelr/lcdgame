@@ -16,6 +16,7 @@
             height: 863px;
             margin: auto;
             background: url("bitmap.png") no-repeat;
+            background-size: cover;
             }
             div#messageArea {
             position: absolute;
@@ -24,17 +25,34 @@
             color: #2d2f2c;
             font-family: 'Press Start 2P', cursive;
             }
-            table {
+            div#scoreArea {
+            position: absolute;
+            top: 0px;
+            right: 0px;
+            color: #2d2f2c;
+            font-family: 'Press Start 2P', cursive;
+            }
+            table#grid{
             position: absolute;
             left: 173px;
             top: 98px;
             border-spacing: 2px;
-            border-color: blueviolet;
+            
+            border: solid 2px red;
             
             }
+
             td {
             width: 94px;
             height: 94px;
+           
+            }
+
+            #scoreArea td{
+                padding: 0px;
+                width: 44px;
+       
+            
             }
             form {
             position: absolute;
@@ -57,12 +75,61 @@
             .playership {
             background: url("playership.png") no-repeat center center;
             }
+            .n1{
+                background: url("1.png") no-repeat center center;
+                background-size: contain;
+            }
+            .n2{
+                background: url("2.png") no-repeat center center;
+                background-size: contain;
+            }
+            .n3{
+                background: url("3.png") no-repeat center center;
+                background-size: contain;
+            }
+            .n4{
+                background: url("4.png") no-repeat center center;
+                background-size: contain;
+            }
+            .n5{
+                background: url("5.png") no-repeat center center;
+                background-size: contain;
+            }
+            .n6{
+                background: url("6.png") no-repeat center center;
+                background-size: contain;
+                
+            }
+            .n7{
+                background: url("7.png") no-repeat center center;
+                background-size: contain;
+            }
+            .n8{
+                background: url("8.png") no-repeat center center;
+                background-size: contain;
+            }
+            .n9{
+                background: url("9.png") no-repeat center center;
+                background-size: contain;
+            }
+            .n0{
+                background: url("0.png") no-repeat center center;
+                background-size: contain;
+            }
         </style>
     </head>
     <body>
         <div id="board">
-            <div id="messageArea">Test</div>
-            <table>
+            <div id="messageArea">0</div>
+            <div id="scoreArea">
+                <table id="score">
+                    <tr>
+                        <td id="d0"></td><td id="d1"></td><td id="d2"></td><td id="d3">
+                        </td><td id="d4"></td>
+                    </tr>
+                </table>
+            </div>
+            <table id="grid">
                 <tr>
                     <td id="00"></td><td id="01"></td><td id="02"></td><td id="03">
                     </td><td id="04"></td> <td id="05"></td><td id="06"></td><td id="07"></td>

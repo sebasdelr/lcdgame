@@ -19,6 +19,11 @@ var view = {
     displayNothing: function(location) {
         var cell = document.getElementById(location);
         cell.setAttribute("class", ""); 
+    },
+    displayDigit: function(location, num){
+        var cell0 = document.getElementById("d" + location);
+        cell0.setAttribute("class", "n" + num);
+
     }
 };
 
@@ -48,10 +53,11 @@ var model = {
         if(newIndex > 0){
             var currentShot = controller.ammo.pop();
             var currentShot = column;
+            //console.log(newIndex);
  
             
             var x = 1;
-            var intervalID = window.setInterval(function () {
+            var shotIntervalID = window.setInterval(function(){
 
                 switch(newIndex) {
                     case 3:
@@ -71,11 +77,11 @@ var model = {
             
                 if (x === 8) {
 
-                    window.clearInterval(intervalID);
+                    window.clearInterval(shotIntervalID);
                 
                 }
             }, 300);
-            if(newIndex == 0){
+            if(newIndex == 1){
                 controller.reset();
                 
 
@@ -85,9 +91,57 @@ var model = {
 
     },
 
+    scoreTranslator: function(num){
+        
+        numArray = [];
+        x = num;
+        
+        while(x > 0){
+            if(x >= 100000){
+                //gameover
+            }
+            else if(x >= 10000){
+                //numArray.push(x / 10000);
+                digit = x / 10000;
+                view.displayDigit("0", digit.toString());
+                x = x % 10000;
+
+            }
+            else if(x >= 1000){
+                //numArray.push(x / 1000);
+                digit = x / 1000;
+                view.displayDigit("1", digit.toString());
+                x = x % 1000;
+
+            }
+            else if(x >= 100){
+                //numArray.push(x / 100);
+                digit = x / 100;
+                view.displayDigit("2", digit.toString());
+                x = x % 100;
+
+            }
+            else if(x >= 10){
+                //numArray.push(x / 10);
+                digit = x / 10;
+                view.displayDigit("3", digit.toString());
+                x = x % 10;
+
+            }
+            else{
+                digit = x;
+                view.displayDigit("4", digit.toString());
+                x = 0;            }
+
+
+        }
+        
+
+    },
+
     fireShot: function() {
 
-        setInterval(function () {
+        setInterval(function(){
 
             if(triggerPulled){
 
@@ -100,6 +154,9 @@ var model = {
         }, 40);
 
     },
+    resetCounter: function(){
+        view.displayDigit("4", "0");
+    }
     
     
     
@@ -107,6 +164,9 @@ var model = {
 
 function playerShot(){
     this.shotMarker = "x";
+    this.resetShot = function(){
+        this.shotMarker = "x";
+    }
     this.moveRight = function(current, column){
   
         this.shotMarker = current + column;
@@ -121,6 +181,8 @@ function playerShot(){
         else if(column == 7){
     
             view.displayNothing(previousMarkerUp);
+            this.resetShot();
+            //need to reset shot marker here... or enemy will get stuck here
     
         }
         else{
@@ -132,6 +194,7 @@ function playerShot(){
 
     }
 }
+
 
 
 var controller = {
@@ -168,7 +231,7 @@ function enemyShip(shipName){
 enemyShip.prototype.moveLeft = function(current, column){
 
     this.shipMarker = current + column;
-    this.nextShipMarker = current + (column + 1);
+    this.nextShipMarker = current + (column - 1);
     this.previousShipMarker = current + (column + 1);
 
 
@@ -186,6 +249,7 @@ enemyShip.prototype.moveLeft = function(current, column){
     else if(column == 0){
 
         view.displayNothing(this.previousShipMarker);
+        
 
     }
     else{
@@ -196,6 +260,7 @@ enemyShip.prototype.moveLeft = function(current, column){
     }
 };
 
+//maybe need to pass this to the shot instead
 enemyShip.prototype.colission = function() {
 
     if(this.shipMarker == ""){
@@ -203,8 +268,8 @@ enemyShip.prototype.colission = function() {
 
     }
     else{
-
-        if(playerShot3.shotMarker.toString() == this.nextShipMarker.toString() || playerShot2.shotMarker.toString() == this.nextShipMarker.toString() || playerShot1.shotMarker.toString() == this.nextShipMarker.toString()){
+        if(playerShot3.shotMarker.toString() == this.shipMarker.toString() || playerShot2.shotMarker.toString() == this.shipMarker.toString() || playerShot1.shotMarker.toString() == this.shipMarker.toString()){
+        //if(playerShot3.shotMarker.toString() == this.nextShipMarker.toString() || playerShot2.shotMarker.toString() == this.nextShipMarker.toString() || playerShot1.shotMarker.toString() == this.nextShipMarker.toString()){
             console.log(this.enemyName + " shot");  
               
             this.enemyState = false;
@@ -219,7 +284,7 @@ enemyShip.prototype.enemyMove = function(startPoint, interval){
     var self = this;
 
     setInterval(function(){
-        self.enemyState = true;        
+        //self.enemyState = true;        
         var x = 7;
 
         //maybe set interval id's to different variables to prevent freezing
@@ -245,14 +310,15 @@ enemyShip.prototype.enemyMove = function(startPoint, interval){
 
 
 
-            if (x === -1 || !self.enemyState) {
+            if (x === 0 || !self.enemyState) {
                 
                 window.clearInterval(intervalID);
                 if(!self.enemyState){
                     score++;
                     view.displayMessage(score);
+                    model.scoreTranslator(score);
                     window.clearInterval(intervalID);
-                    //self.enemyState = true;
+                    self.enemyState = true;
 
                 }
 
@@ -327,6 +393,8 @@ function init() {
     score = 0;
     triggerPulled = false;
     controller.reset();
+
+    model.resetCounter();
 
     model.fireShot();
 
