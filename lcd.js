@@ -96,34 +96,34 @@ var model = {
         numArray = [];
         x = num;
         
-        while(x > 0){
+        while(x >= 0){
             if(x >= 100000){
                 //gameover
             }
             else if(x >= 10000){
                 //numArray.push(x / 10000);
-                digit = x / 10000;
+                digit = Math.trunc(x / 10000);
                 view.displayDigit("0", digit.toString());
                 x = x % 10000;
 
             }
             else if(x >= 1000){
                 //numArray.push(x / 1000);
-                digit = x / 1000;
+                digit = Math.trunc(x / 1000);
                 view.displayDigit("1", digit.toString());
                 x = x % 1000;
 
             }
             else if(x >= 100){
                 //numArray.push(x / 100);
-                digit = x / 100;
+                digit = Math.trunc(x / 100);
                 view.displayDigit("2", digit.toString());
                 x = x % 100;
 
             }
             else if(x >= 10){
                 //numArray.push(x / 10);
-                digit = x / 10;
+                digit = Math.trunc(x / 10);
                 view.displayDigit("3", digit.toString());
                 x = x % 10;
 
@@ -131,7 +131,8 @@ var model = {
             else{
                 digit = x;
                 view.displayDigit("4", digit.toString());
-                x = 0;            }
+                x = -1;       
+            }
 
 
         }
@@ -154,7 +155,7 @@ var model = {
         }, 40);
 
     },
-    resetCounter: function(){
+    resetAll: function(){
         view.displayDigit("4", "0");
     }
     
@@ -394,7 +395,8 @@ function init() {
     triggerPulled = false;
     controller.reset();
 
-    model.resetCounter();
+    //model.resetCounter();
+    view.displayDigit("4", "0");
 
     model.fireShot();
 
