@@ -75,7 +75,7 @@ var model = {
 
                 x++;
             
-                if (x === 8) {
+                if (x === 11) {
 
                     window.clearInterval(shotIntervalID);
                 
@@ -179,7 +179,7 @@ function playerShot(){
             view.displayMiss(this.shotMarker);
     
         }
-        else if(column == 7){
+        else if(column == 10){
     
             view.displayNothing(previousMarkerUp);
             this.resetShot();
@@ -242,7 +242,7 @@ enemyShip.prototype.moveLeft = function(current, column){
     // this.previousShipMarker = column + (current - 1);
     
 
-    if(column == 7){
+    if(column == 10){
 
         view.displayHit(this.shipMarker);
 
@@ -286,7 +286,7 @@ enemyShip.prototype.enemyMove = function(startPoint, interval){
 
     setInterval(function(){
         //self.enemyState = true;        
-        var x = 7;
+        var x = 10;
 
         //maybe set interval id's to different variables to prevent freezing
 
@@ -316,7 +316,7 @@ enemyShip.prototype.enemyMove = function(startPoint, interval){
                 window.clearInterval(intervalID);
                 if(!self.enemyState){
                     score++;
-                    view.displayMessage(score);
+                    //view.displayMessage(score);
                     model.scoreTranslator(score);
                     window.clearInterval(intervalID);
                     self.enemyState = true;
