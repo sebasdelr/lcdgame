@@ -23,12 +23,19 @@ var startY = 0;
 var shotColor = "green";
 var squareState = "true";
 var score = 0;
-var ammoCount = 3;
+var ammoCount = 2;
 var ammoSize = 3;
 var ammo = [];
 var justDelay = 0;
 
+var view = {
+    
+    displayDigit: function(location, num){
+        var cell0 = document.getElementById("d" + location);
+        cell0.setAttribute("class", "n" + num);
 
+    }
+};
 
 
 function drawLine(number){
@@ -37,12 +44,15 @@ function drawLine(number){
 }
 
 //enemy
-
 function drawSquare() {
+    var img = new Image();
+    img.src = "enemyship.png";
 
     if(squareState){
         ctx.beginPath();
-        ctx.rect(startNodeX, drawLine(4), spriteWidth, spriteHeight);
+
+        ctx.drawImage(img, startNodeX, drawLine(4));
+        //ctx.rect(startNodeX, drawLine(4), spriteWidth, spriteHeight);
         ctx.fillStyle = "red";
         ctx.fill();
         ctx.closePath();
@@ -50,8 +60,8 @@ function drawSquare() {
         counter++;
         if(counter == 100){
             
-            if(startNodeX < 0){
-                startNodeX = canvas.width;
+            if(startNodeX < spriteWidth * 2){
+                startNodeX = canvas.width - spriteWidth;
 
             }
             else{
@@ -63,37 +73,8 @@ function drawSquare() {
 
     }
     
-    
 }
 
-function drawShot(){
-
-    if(triggerPulled && squareState){
-        ctx.beginPath();
-        ctx.rect(startShotX, startShotY, spriteWidth, spriteHeight);
-        ctx.fillStyle = shotColor;
-        ctx.fill();
-        ctx.closePath();
-
-        shotDelay++;
-        if(shotDelay == 50){
-            
-            if(startShotX > canvas.width - spriteWidth ){
-                startShotX = 0;
-                triggerPulled = false;
-
-            }
-            else{
-                startShotX = startShotX + spriteWidth;
-
-            }
-            shotDelay = 0;
-            
-        }
-        
-    }    
-    
-}
 
 function resetAmmo(){
     console.log("start");
@@ -106,36 +87,33 @@ function resetAmmo(){
 
 function drawBullet(){
 
+    var img = new Image();
+    img.src = "shot.png";
     
-    //maybe set a for loop that draws all 3 shots constantly if criteria are met
-
-
     for(var c=0; c<ammoSize; c++) {
         
         //status will change until collission or reach end or reset
         if(ammo[c].status==1){
 
-            //console.log("shotpath");
-
-
-            // ammo[c].x = 0;
-            // ammo[c].y = startShotY;
-
-
             ctx.beginPath();
-            ctx.rect(ammo[c].x, ammo[c].y, spriteWidth, spriteHeight);
+            ctx.drawImage(img, ammo[c].x, ammo[c].y);
+            //ctx.rect(ammo[c].x, ammo[c].y, spriteWidth, spriteHeight);
+
             ctx.fillStyle = "#0095DD";
             ctx.fill();
             ctx.closePath();
-
-            
 
             ammo[c].shotDelay++;
             if(ammo[c].shotDelay == 50){
                 
                 if(ammo[c].x > canvas.width - spriteWidth ){
-                    ammo[c].x = 0;
-                    triggerPulled = false;
+                    ammo[c].x = spriteWidth;
+                    //triggerPulled = false;
+                    ammo[c].status = 0;
+                    if(ammoCount == -1){
+                        ammoCount = 2;
+                    }
+                    console.log(ammoCount);
 
                 }
                 else{
@@ -153,8 +131,14 @@ function drawBullet(){
 }
 
 function drawPlayer() {
+
+    var img = new Image();
+    img.src = "playership.png";
+
     ctx.beginPath();
-    ctx.rect(playerX, playerY, spriteWidth, spriteHeight);
+
+    ctx.drawImage(img, playerX,playerY);
+    //ctx.rect(playerX, playerY, spriteWidth, spriteHeight);
     ctx.fillStyle = "#0095DD";
     ctx.fill();
     ctx.closePath();
@@ -169,7 +153,6 @@ function draw() {
     drawSquare();
     drawPlayer();
     drawBullet();
-    //drawShot();
     collissionDetection();
     drawScore();
 
@@ -199,33 +182,19 @@ function draw() {
         }
     }
 
-     //below helps but we probably need something similar to other code where key was only pressed once.
     else if(shotPressed){
-        //change ammo count here?
-        // need to find a way to lock shots... after 3 need cooldown before resetting ammo count, 
-        
-        justDelay++;
-       
-        if(justDelay == 10){
-            justDelay = 0;
-            triggerPulled = true;
+
+        if(ammoCount >= 0){
             ammo[ammoCount].status = 1;
             ammo[ammoCount].y = playerY;
             ammo[ammoCount].x = spriteWidth;
             ammoCount--;
 
-            
-            if(ammoCount == 0){
-                ammoCount = 3;
-            }
-
-            console.log(ammoCount);
-            //maybe switch statement here, each shot triggers a different state, different shot
 
         }
-
         
-        
+        shotPressed = false;
+        console.log(ammoCount);
 
     }
    
@@ -244,6 +213,7 @@ function keyDownHandler(e) {
     else if(e.key == "A" || e.keyCode == 65) {
 
         shotPressed = true;
+        triggerPulled = true;
 
     }
 }
@@ -264,23 +234,21 @@ function keyUpHandler(e) {
 function collissionDetection(){
     //for loop to check enemy vs all shots
 
-    for(var r=0; r<ammo; r++) {
+    for(var r=0; r<ammoSize; r++) {
         var b = ammo[r];
         if(b.status == 1) {
-            if(startNodeX > b.x && x < b.x+spriteWidth && startNodeY > b.y && drawLine(4) < b.y+spriteHeight) {
+            //if(b > b.x && x < b.x+spriteWidth && startNodeY > b.y && drawLine(4) < b.y+spriteHeight) {
+            if(b.x < startNodeX + spriteWidth && b.x + spriteWidth > startNodeX && b.y < drawLine(4) + spriteHeight && b.y + spriteHeight > drawLine(4)){
             //if(startShotX < startNodeX + spriteWidth && startShotX + spriteWidth > startNodeX && playerY < drawLine(4) + spriteHeight && playerY + spriteHeight > drawLine(4)){
                 //dy = -dy;
-                //b.status = 0;
+                b.status = 0;
                 //score++;
-                // if(score == brickRowCount*brickColumnCount) {
-                //     alert("YOU WIN, CONGRATULATIONS!");
-                //     document.location.reload();
-                //     clearInterval(interval); // Needed for Chrome to end game
-                // }
+
                 console.log("Collission");
                 //shotColor = "yellow";
                 squareState = false;
                 score = score + 10;
+                scoreTranslator(score);
                 b.x = "x";
             }
 
@@ -288,15 +256,7 @@ function collissionDetection(){
             
     }
     // if(startShotX < startNodeX + spriteWidth && startShotX + spriteWidth > startNodeX && playerY < drawLine(4) + spriteHeight && playerY + spriteHeight > drawLine(4)){
-    //     console.log("Collission");
-    //     shotColor = "yellow";
-    //     squareState = false;
-    //     score = score + 10;
-    //     startShotX = "x";
-    // }
-    // else{
-    //     //shotColor = "green";
-    // }
+
 }
 function drawScore(){
     ctx.fonz = "12px Arial";
@@ -304,10 +264,55 @@ function drawScore(){
     ctx.fillText("Score: " + score, 8, 20);
 }
 
+function scoreTranslator(num){
+        
+    numArray = [];
+    x = num;
+
+    
+    while(x >= 0){
+        if(x >= 100000){
+            //gameover
+        }
+        else if(x >= 10000){
+            //numArray.push(x / 10000);
+            digit = Math.trunc(x / 10000);
+            view.displayDigit("0", digit.toString());
+            x = x % 10000;
+
+        }
+        else if(x >= 1000){
+            //numArray.push(x / 1000);
+            digit = Math.trunc(x / 1000);
+            view.displayDigit("1", digit.toString());
+            x = x % 1000;
+
+        }
+        else if(x >= 100){
+            //numArray.push(x / 100);
+            digit = Math.trunc(x / 100);
+            view.displayDigit("2", digit.toString());
+            x = x % 100;
+
+        }
+        else if(x >= 10){
+            //numArray.push(x / 10);
+            digit = Math.trunc(x / 10);
+            view.displayDigit("3", digit.toString());
+            x = x % 10;
+
+        }
+        else{
+            digit = x;
+            view.displayDigit("4", digit.toString());
+            x = -1;       
+        }
 
 
+    }
+    
 
-
+}
 
 
 function init(){
