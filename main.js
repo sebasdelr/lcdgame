@@ -27,6 +27,7 @@ var ammoCount = 2;
 var ammoSize = 3;
 var ammo = [];
 var justDelay = 0;
+var life = 3;
 
 var view = {
     
@@ -34,6 +35,14 @@ var view = {
         var cell0 = document.getElementById("d" + location);
         cell0.setAttribute("class", "n" + num);
 
+    },
+    displayLessLife: function(location){
+        var cell0 = document.getElementById("l" + location);
+        cell0.setAttribute("class", "");
+    },
+    displayGameOver: function(){
+        var cell0 = document.getElementById("gameOver");
+        cell0.setAttribute("class", "gameOver");
     }
 };
 
@@ -60,7 +69,7 @@ function drawSquare() {
         counter++;
         if(counter == 100){
             
-            if(startNodeX < spriteWidth * 2){
+            if(startNodeX < spriteWidth){
                 startNodeX = canvas.width - spriteWidth;
 
             }
@@ -154,7 +163,7 @@ function draw() {
     drawPlayer();
     drawBullet();
     collissionDetection();
-    drawScore();
+    drawLife();
 
     if(downPressed) {
         downDelay++;
@@ -234,6 +243,21 @@ function keyUpHandler(e) {
 function collissionDetection(){
     //for loop to check enemy vs all shots
 
+    //startNodeX < spriteWidth
+    if(startNodeX < playerX + spriteWidth && playerY < drawLine(4) + spriteHeight && playerY + spriteHeight > drawLine(4)){
+        console.log("collided");
+        squareState = false;
+        startNodeX = canvas.width - spriteWidth;
+        life--;
+        if(life == 0){
+            view.displayGameOver();
+            //alert("GAME OVER!");
+            document.location.reload();
+            clearInterval(interval); // Needed for Chrome to end game
+        }
+        squareState = true;
+    }
+
     for(var r=0; r<ammoSize; r++) {
         var b = ammo[r];
         if(b.status == 1) {
@@ -250,7 +274,15 @@ function collissionDetection(){
                 score = score + 10;
                 scoreTranslator(score);
                 b.x = "x";
+                startNodeX = canvas.width - spriteWidth;
+                squareState = true;
+
+                if(ammoCount == -1){
+                    ammoCount = 2;
+                }
+
             }
+            
 
         }
             
@@ -258,10 +290,13 @@ function collissionDetection(){
     // if(startShotX < startNodeX + spriteWidth && startShotX + spriteWidth > startNodeX && playerY < drawLine(4) + spriteHeight && playerY + spriteHeight > drawLine(4)){
 
 }
-function drawScore(){
-    ctx.fonz = "12px Arial";
-    ctx.fillStyle = "black";
-    ctx.fillText("Score: " + score, 8, 20);
+function drawLife(){
+    // ctx.fonz = "12px Arial";
+    // ctx.fillStyle = "black";
+    // ctx.fillText("Life: " + life, 8, 20);
+    if(life < 3){
+        view.displayLessLife(life);
+    }
 }
 
 function scoreTranslator(num){
