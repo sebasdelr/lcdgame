@@ -4,8 +4,8 @@ var canvas = document.getElementById("myCanvas");
 var x = canvas.width/2;
 var y = canvas.height-30;
 var ctx = canvas.getContext("2d");
-var spriteHeight = 93;
-var spriteWidth = 93;
+var spriteHeight = 94;
+var spriteWidth = 94;
 var startNodeX = canvas.width - spriteWidth;
 var startShotX = 0;
 var startShotY = 0;
@@ -26,8 +26,16 @@ var score = 0;
 var ammoCount = 2;
 var ammoSize = 3;
 var ammo = [];
+var enemySpeed = 100;
+
+var startGame = false;
+
 var justDelay = 0;
 var life = 3;
+
+var enemyNumber = 8;
+
+var enemies = [];
 
 var view = {
     
@@ -44,7 +52,11 @@ var view = {
         var cell0 = document.getElementById("gameOver");
         cell0.setAttribute("class", "gameOver");
     }
-};
+}
+
+function getRandomInt(max) {
+    return Math.floor(Math.random() * max);
+}
 
 
 function drawLine(number){
@@ -52,37 +64,109 @@ function drawLine(number){
 
 }
 
-//enemy
-function drawSquare() {
-    var img = new Image();
-    img.src = "enemyship.png";
+function resetEnemies(){
+    for(var c=0; c<enemyNumber; c++) {
+        // bricks[c] = [];
+        // for(var r=0; r<brickRowCount; r++) {
+        enemies[c] = { x: canvas.width - spriteWidth, y: 0, squareState: 0, counter: 0, enemySpeed: 0};
+        // }
+    }
 
-    if(squareState){
-        ctx.beginPath();
+}
 
-        ctx.drawImage(img, startNodeX, drawLine(4));
-        //ctx.rect(startNodeX, drawLine(4), spriteWidth, spriteHeight);
-        ctx.fillStyle = "red";
-        ctx.fill();
-        ctx.closePath();
+function enemyGoAhead(){
+    var startInterval = 100;
+    var startIndex = 0;
+    justDelay++;
 
-        counter++;
-        if(counter == 100){
+    if(justDelay == startInterval){
+        startIndex = getRandomInt(enemyNumber); 
+        console.log(startIndex);
+        enemies[startIndex].squareState = 1;
+        justDelay = 0;
+    }
+
+
+}
+
+
+
+function drawEnemies() {
+
+    for(var c=0; c<enemyNumber; c++){
+        
+        if(enemies[c].squareState == 1){
+            enemies[c].counter++;
+            ctx.beginPath();
+            switch(c) {
+                case 0:
+                    var img1 = new Image();
+                    img1.src = "rock.png";
+                    ctx.drawImage(img1, enemies[c].x, drawLine(c), spriteWidth, spriteHeight);
+                    enemies[c].enemySpeed = 300;
+                  // code block
+                    break;
+                case 1:
+                    var img2 = new Image();
+                    img2.src = "ship2.png";
+                    ctx.drawImage(img2, enemies[c].x, drawLine(c), spriteWidth, spriteHeight);
+                    enemies[c].enemySpeed = 100;
+                  // code block
+                    break;
+                case 4:
+                    var img3 = new Image();
+                    img3.src = "ship3.png";
+                    ctx.drawImage(img3, enemies[c].x, drawLine(c), spriteWidth, spriteHeight);
+                    enemies[c].enemySpeed = 100;
+                    
+                    break;
+                case 5:
+                    var img4 = new Image();
+                    img4.src = "ship4.png";
+                    ctx.drawImage(img4, enemies[c].x, drawLine(c), spriteWidth, spriteHeight);
+                    enemies[c].enemySpeed = 20;                    
+                    break;
+                case 6:
+                    var img5 = new Image();
+                    img5.src = "rock.png";
+                    ctx.drawImage(img5, enemies[c].x, drawLine(c), spriteWidth, spriteHeight);
+                    enemies[c].enemySpeed = 300;
+                    break;
+                default:
+                    var img = new Image();
+                    img.src = "enemyship.png";
+                    ctx.drawImage(img, enemies[c].x, drawLine(c), spriteWidth, spriteHeight);
+                    enemies[c].enemySpeed = 100;
+                    
+                  // code block
+            }
             
-            if(startNodeX < spriteWidth){
-                startNodeX = canvas.width - spriteWidth;
+
+            
+            //ctx.rect(startNodeX, drawLine(4), spriteWidth, spriteHeight);
+            ctx.fillStyle = "red";
+            ctx.fill();
+            ctx.closePath();
+
+            if(enemies[c].counter == enemies[c].enemySpeed){
+                
+                if(enemies[c].x < spriteWidth){
+                    enemies[c].x = canvas.width - spriteWidth;
+
+                }
+                else{
+                    enemies[c].x = enemies[c].x - spriteWidth;
+
+                }
+
+                enemies[c].counter = 0;
 
             }
-            else{
-                startNodeX = startNodeX - spriteWidth;
-
-            }
-            counter = 0;
         }
-
     }
     
 }
+
 
 
 function resetAmmo(){
@@ -146,9 +230,9 @@ function drawPlayer() {
 
     ctx.beginPath();
 
-    ctx.drawImage(img, playerX,playerY);
+    ctx.drawImage(img, playerX,playerY, spriteWidth, spriteHeight);
     //ctx.rect(playerX, playerY, spriteWidth, spriteHeight);
-    ctx.fillStyle = "#0095DD";
+    ctx.fillStyle = "";
     ctx.fill();
     ctx.closePath();
 }
@@ -158,54 +242,55 @@ function drawPlayer() {
 function draw() {
     ctx.clearRect(0, 0, canvas.width, canvas.height);
     ctx.drawImage(img, 0,0);
-    
-    drawSquare();
-    drawPlayer();
-    drawBullet();
-    collissionDetection();
-    drawLife();
 
-    if(downPressed) {
-        downDelay++;
-        upDelay = 0;
-        if(downDelay == 10){
+    if(startGame){
+        
+        enemyGoAhead();
+        
+        drawPlayer();
+        drawBullet();
+        collissionDetection();
+        drawLife();
+        drawEnemies();
+
+        if(downPressed) {
+            
+            downPressed = false;
             playerY += spriteHeight;
-            downDelay = 0;
-
+            
+            if (playerY + spriteHeight > canvas.height){
+                playerY = canvas.height - spriteHeight;
+            }
         }
-        
-        if (playerY + spriteHeight > canvas.height - spriteHeight){
-            playerY = canvas.height - (spriteHeight * 2);
-        }
-    }
-    else if(upPressed) {
-        downDelay = 0;
-        upDelay++;
-        if(upDelay == 10){
-            upDelay = 0;
+        else if(upPressed) {
+            
+            upPressed = false;        
             playerY -= spriteHeight;
+
+            
+            if (playerY < 0){
+                playerY = 0;
+            }
         }
-        
-        if (playerY < spriteHeight){
-            playerY = spriteHeight;
+
+        else if(shotPressed){
+
+            if(ammoCount >= 0){
+                ammo[ammoCount].status = 1;
+                ammo[ammoCount].y = playerY;
+                ammo[ammoCount].x = spriteWidth;
+                ammoCount--;
+
+
+            }
+            
+            shotPressed = false;
+            console.log(ammoCount);
+
         }
+
     }
-
-    else if(shotPressed){
-
-        if(ammoCount >= 0){
-            ammo[ammoCount].status = 1;
-            ammo[ammoCount].y = playerY;
-            ammo[ammoCount].x = spriteWidth;
-            ammoCount--;
-
-
-        }
-        
-        shotPressed = false;
-        console.log(ammoCount);
-
-    }
+    
    
 }
 
@@ -225,6 +310,13 @@ function keyDownHandler(e) {
         triggerPulled = true;
 
     }
+    else if(e.key == "Enter" || e.keyCode == 13) {
+
+        startGame = true;
+
+
+
+    }
 }
 
 
@@ -238,55 +330,69 @@ function keyUpHandler(e) {
     else if(e.key == "A" || e.keyCode == 65) {
         shotPressed = false;
     }
+    // else if(e.key == "Enter" || e.keyCode == 13) {
+
+    //     startGame = false;
+
+
+
+    // }
 }
 //need different nodes for shots and enemies
 function collissionDetection(){
     //for loop to check enemy vs all shots
 
     //startNodeX < spriteWidth
-    if(startNodeX < playerX + spriteWidth && playerY < drawLine(4) + spriteHeight && playerY + spriteHeight > drawLine(4)){
-        console.log("collided");
-        squareState = false;
-        startNodeX = canvas.width - spriteWidth;
-        life--;
-        if(life == 0){
-            view.displayGameOver();
-            //alert("GAME OVER!");
-            document.location.reload();
-            clearInterval(interval); // Needed for Chrome to end game
-        }
-        squareState = true;
-    }
-
-    for(var r=0; r<ammoSize; r++) {
-        var b = ammo[r];
-        if(b.status == 1) {
-            //if(b > b.x && x < b.x+spriteWidth && startNodeY > b.y && drawLine(4) < b.y+spriteHeight) {
-            if(b.x < startNodeX + spriteWidth && b.x + spriteWidth > startNodeX && b.y < drawLine(4) + spriteHeight && b.y + spriteHeight > drawLine(4)){
-            //if(startShotX < startNodeX + spriteWidth && startShotX + spriteWidth > startNodeX && playerY < drawLine(4) + spriteHeight && playerY + spriteHeight > drawLine(4)){
-                //dy = -dy;
-                b.status = 0;
-                //score++;
-
-                console.log("Collission");
-                //shotColor = "yellow";
-                squareState = false;
-                score = score + 10;
-                scoreTranslator(score);
-                b.x = "x";
-                startNodeX = canvas.width - spriteWidth;
-                squareState = true;
-
-                if(ammoCount == -1){
-                    ammoCount = 2;
-                }
-
+    for(var i = 0; i < enemyNumber; i++){
+        if(enemies[i].x < playerX + spriteWidth && enemies[i].x + spriteWidth > playerX && playerY < drawLine(i) + spriteHeight && playerY + spriteHeight > drawLine(i)){
+            console.log("collided");
+            enemies[i].squareState = 0;
+            enemies[i].x = canvas.width - spriteWidth;
+            life--;
+            if(life == 0){
+                view.displayGameOver();
+                //alert("GAME OVER!");
+                document.location.reload();
+                clearInterval(interval); // Needed for Chrome to end game
+                startGame = false;
             }
-            
-
+            //enemies[i].squareState = 1;
         }
-            
+    
+        for(var r=0; r<ammoSize; r++) {
+            var b = ammo[r];
+            if(b.status == 1) {
+                //if(b > b.x && x < b.x+spriteWidth && startNodeY > b.y && drawLine(4) < b.y+spriteHeight) {
+                if(b.x < enemies[i].x + spriteWidth && b.x + spriteWidth > enemies[i].x && b.y < drawLine(i) + spriteHeight && b.y + spriteHeight > drawLine(i)){
+
+                //if(b.x > enemies[i].x && b.x < enemies[i].x+spriteWidth && b.y > drawLine(i) && b.y < drawLine(i)+spriteHeight){
+                //if(startShotX < startNodeX + spriteWidth && startShotX + spriteWidth > startNodeX && playerY < drawLine(4) + spriteHeight && playerY + spriteHeight > drawLine(4)){
+                    //dy = -dy;
+                    b.status = 0;
+                    //score++;
+    
+                    console.log("Collission");
+                    //shotColor = "yellow";
+                    enemies[i].squareState = 0;
+                    score = score + 10;
+                    scoreTranslator(score);
+                    b.x = "x";
+                    enemies[i].x = canvas.width - spriteWidth;
+                    //enemies[i].squareState = 1;
+    
+                    if(ammoCount == -1){
+                        ammoCount = 2;
+                    }
+    
+                }
+                
+    
+            }
+                
+        }
+
     }
+    
     // if(startShotX < startNodeX + spriteWidth && startShotX + spriteWidth > startNodeX && playerY < drawLine(4) + spriteHeight && playerY + spriteHeight > drawLine(4)){
 
 }
@@ -353,7 +459,9 @@ function scoreTranslator(num){
 function init(){
       
     var interval = setInterval(draw, 10);
+    console.log("start");
 
+    resetEnemies();
     resetAmmo();
 }
 
