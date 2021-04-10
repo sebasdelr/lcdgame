@@ -23,10 +23,11 @@ var startY = 0;
 var shotColor = "green";
 var squareState = "true";
 var score = 0;
-var ammoCount = 2;
-var ammoSize = 3;
+var ammoCount = 9;
+var ammoSize = 10;
 var ammo = [];
 var enemySpeed = 100;
+var speedLevel = 0;
 
 var startGame = false;
 
@@ -36,6 +37,9 @@ var life = 3;
 var enemyNumber = 8;
 
 var enemies = [];
+var playerHit = false;
+var stateCounter = 0;
+
 
 var view = {
     
@@ -48,9 +52,9 @@ var view = {
         var cell0 = document.getElementById("l" + location);
         cell0.setAttribute("class", "");
     },
-    displayGameOver: function(){
+    displayGameOver: function(string){
         var cell0 = document.getElementById("gameOver");
-        cell0.setAttribute("class", "gameOver");
+        cell0.setAttribute("class", string);
     }
 }
 
@@ -68,7 +72,7 @@ function resetEnemies(){
     for(var c=0; c<enemyNumber; c++) {
         // bricks[c] = [];
         // for(var r=0; r<brickRowCount; r++) {
-        enemies[c] = { x: canvas.width - spriteWidth, y: 0, squareState: 0, counter: 0, enemySpeed: 0};
+        enemies[c] = { x: canvas.width - spriteWidth, y: 0, squareState: 0, hitState: 0, counter: 0, enemySpeed: 0, enemyImage: new Image(), enemyImageName: ""};
         // }
     }
 
@@ -79,7 +83,7 @@ function enemyGoAhead(){
     var startIndex = 0;
     justDelay++;
 
-    if(justDelay == startInterval){
+    if(justDelay == (startInterval - speedLevel)){
         startIndex = getRandomInt(enemyNumber); 
         console.log(startIndex);
         enemies[startIndex].squareState = 1;
@@ -96,73 +100,111 @@ function drawEnemies() {
     for(var c=0; c<enemyNumber; c++){
         
         if(enemies[c].squareState == 1){
-            enemies[c].counter++;
-            ctx.beginPath();
-            switch(c) {
-                case 0:
-                    var img1 = new Image();
-                    img1.src = "rock.png";
-                    ctx.drawImage(img1, enemies[c].x, drawLine(c), spriteWidth, spriteHeight);
-                    enemies[c].enemySpeed = 300;
-                  // code block
-                    break;
-                case 1:
-                    var img2 = new Image();
-                    img2.src = "ship2.png";
-                    ctx.drawImage(img2, enemies[c].x, drawLine(c), spriteWidth, spriteHeight);
-                    enemies[c].enemySpeed = 100;
-                  // code block
-                    break;
-                case 4:
-                    var img3 = new Image();
-                    img3.src = "ship3.png";
-                    ctx.drawImage(img3, enemies[c].x, drawLine(c), spriteWidth, spriteHeight);
-                    enemies[c].enemySpeed = 100;
-                    
-                    break;
-                case 5:
-                    var img4 = new Image();
-                    img4.src = "ship4.png";
-                    ctx.drawImage(img4, enemies[c].x, drawLine(c), spriteWidth, spriteHeight);
-                    enemies[c].enemySpeed = 20;                    
-                    break;
-                case 6:
-                    var img5 = new Image();
-                    img5.src = "rock.png";
-                    ctx.drawImage(img5, enemies[c].x, drawLine(c), spriteWidth, spriteHeight);
-                    enemies[c].enemySpeed = 300;
-                    break;
-                default:
-                    var img = new Image();
-                    img.src = "enemyship.png";
-                    ctx.drawImage(img, enemies[c].x, drawLine(c), spriteWidth, spriteHeight);
-                    enemies[c].enemySpeed = 100;
-                    
-                  // code block
-            }
-            
-
-            
-            //ctx.rect(startNodeX, drawLine(4), spriteWidth, spriteHeight);
-            ctx.fillStyle = "red";
-            ctx.fill();
-            ctx.closePath();
-
-            if(enemies[c].counter == enemies[c].enemySpeed){
+            //hitstate is only for that frame where explosion sprite is displayed, after which enemies state is changed to 0
+            if(enemies[c].hitState == 1){
+                enemies[c].counter++;
+                ctx.beginPath();
+                switch(c) {
+                    case 0:
+                        enemies[c].enemyImageName = "rockexplosion";
+                        enemies[c].enemySpeed = 300;
+                        break;
+                    case 2:
+                        enemies[c].enemyImageName = "alienexplosion";
+                        enemies[c].enemySpeed = 100;
+                        
+                        break;
+                    case 4:
+                        enemies[c].enemyImageName = "alienexplosion";
+                        enemies[c].enemySpeed = 50;                    
+                        break;
+                    case 6:
+                        enemies[c].enemyImageName = "rockexplosion";
+                        enemies[c].enemySpeed = 300;
+                        break;
+                    default:
+                        enemies[c].enemyImageName = "enemy1explosion";
+                        enemies[c].enemySpeed = 100;
+                        
+                      // code block
+                }
                 
-                if(enemies[c].x < spriteWidth){
-                    enemies[c].x = canvas.width - spriteWidth;
+                enemies[c].enemyImage.src = enemies[c].enemyImageName + ".png";
+    
+                ctx.drawImage(enemies[c].enemyImage, enemies[c].x, drawLine(c), spriteWidth, spriteHeight);
+                //ctx.rect(startNodeX, drawLine(4), spriteWidth, spriteHeight);
+                ctx.fillStyle = "red";
+                ctx.fill();
+                ctx.closePath();
+    
+                if(enemies[c].counter == enemies[c].enemySpeed){
+                    
+
+                        enemies[c].x = canvas.width - spriteWidth;
+                        enemies[c].squareState = 0;
+                        enemies[c].hitState = 0;
+
+
+    
+                        enemies[c].counter = 0;
+    
+                }
+            }
+            else{
+                enemies[c].counter++;
+                ctx.beginPath();
+                switch(c) {
+                    case 0:
+                        enemies[c].enemyImageName = "rock";
+                        enemies[c].enemySpeed = 300;
+                        break;
+                    case 2:
+                        enemies[c].enemyImageName = "alien";
+                        enemies[c].enemySpeed = 100;
+                        
+                        break;
+                    case 4:
+                        enemies[c].enemyImageName = "alien";
+                        enemies[c].enemySpeed = 50;                    
+                        break;
+                    case 6:
+                        enemies[c].enemyImageName = "rock";
+                        enemies[c].enemySpeed = 300;
+                        break;
+                    default:
+                        enemies[c].enemyImageName = "enemy1";
+                        enemies[c].enemySpeed = 100;
+                        
+                    // code block
+                }
+                
+                enemies[c].enemyImage.src = enemies[c].enemyImageName + ".png";
+
+                ctx.drawImage(enemies[c].enemyImage, enemies[c].x, drawLine(c), spriteWidth, spriteHeight);
+                //ctx.rect(startNodeX, drawLine(4), spriteWidth, spriteHeight);
+                ctx.fillStyle = "red";
+                ctx.fill();
+                ctx.closePath();
+
+                if(enemies[c].counter == (enemies[c].enemySpeed -speedLevel)){
+                    
+                    if(enemies[c].x < spriteWidth){
+                        enemies[c].x = canvas.width - spriteWidth;
+
+                    }
+                    else{
+                        enemies[c].x = enemies[c].x - spriteWidth;
+
+                    }
+
+                    enemies[c].counter = 0;
 
                 }
-                else{
-                    enemies[c].x = enemies[c].x - spriteWidth;
-
-                }
-
-                enemies[c].counter = 0;
 
             }
+            
         }
+        
     }
     
 }
@@ -172,7 +214,7 @@ function drawEnemies() {
 function resetAmmo(){
     console.log("start");
     for(var c=0; c<=ammoSize; c++) {
-        ammo[c] = { x: 0, y: 0, shotDelay: 0, status: 0 };
+        ammo[c] = { x: 0, y: 0, shotDelay: 0, status: 0, image: new Image(), imageName: "" };
     }
     //console.log(ammo);
 
@@ -180,16 +222,37 @@ function resetAmmo(){
 
 function drawBullet(){
 
-    var img = new Image();
-    img.src = "shot.png";
+    //var img = new Image();
+    //img.src = "shot.png";
     
     for(var c=0; c<ammoSize; c++) {
+
+        switch(ammo[c].y){
+            case drawLine(0):
+                ammo[c].image.src = "rockshot.png";
+                break;
+            case drawLine(2):
+                ammo[c].image.src = "rockshot.png";
+                break;
+            case drawLine(4):
+                ammo[c].image.src = "rockshot.png";
+                console.log("alien");
+                break;
+            case drawLine(6):
+                ammo[c].image.src = "rockshot.png";
+                break;
+            default:
+                ammo[c].image.src = "rockshot.png";
+
+        }
+
+        
         
         //status will change until collission or reach end or reset
         if(ammo[c].status==1){
 
             ctx.beginPath();
-            ctx.drawImage(img, ammo[c].x, ammo[c].y);
+            ctx.drawImage(ammo[c].image, ammo[c].x, ammo[c].y);
             //ctx.rect(ammo[c].x, ammo[c].y, spriteWidth, spriteHeight);
 
             ctx.fillStyle = "#0095DD";
@@ -203,10 +266,10 @@ function drawBullet(){
                     ammo[c].x = spriteWidth;
                     //triggerPulled = false;
                     ammo[c].status = 0;
-                    if(ammoCount == -1){
-                        ammoCount = 2;
-                    }
-                    console.log(ammoCount);
+                    // if(ammoCount == -1){
+                    //     ammoCount = 2;
+                    // }
+                    // console.log(ammoCount);
 
                 }
                 else{
@@ -226,7 +289,20 @@ function drawBullet(){
 function drawPlayer() {
 
     var img = new Image();
-    img.src = "playership.png";
+
+    if(!playerHit){
+        img.src = "ship.png";
+    }
+    else{
+        img.src = "shipandexplosion.png";
+    }
+
+    stateCounter++;
+    if(stateCounter == 50){
+        playerHit = false;
+        stateCounter = 0;
+    }
+    
 
     ctx.beginPath();
 
@@ -242,8 +318,10 @@ function drawPlayer() {
 function draw() {
     ctx.clearRect(0, 0, canvas.width, canvas.height);
     ctx.drawImage(img, 0,0);
+    view.displayGameOver("gameOver");
 
     if(startGame){
+        view.displayGameOver("");
         
         enemyGoAhead();
         
@@ -275,13 +353,14 @@ function draw() {
 
         else if(shotPressed){
 
-            if(ammoCount >= 0){
-                ammo[ammoCount].status = 1;
-                ammo[ammoCount].y = playerY;
-                ammo[ammoCount].x = spriteWidth;
-                ammoCount--;
 
+            ammo[ammoCount].status = 1;
+            ammo[ammoCount].y = playerY;
+            ammo[ammoCount].x = spriteWidth;
+            ammoCount--;
 
+            if(ammoCount == 0){
+                ammoCount = 9;
             }
             
             shotPressed = false;
@@ -342,15 +421,18 @@ function keyUpHandler(e) {
 function collissionDetection(){
     //for loop to check enemy vs all shots
 
-    //startNodeX < spriteWidth
     for(var i = 0; i < enemyNumber; i++){
+
+        //player collission
         if(enemies[i].x < playerX + spriteWidth && enemies[i].x + spriteWidth > playerX && playerY < drawLine(i) + spriteHeight && playerY + spriteHeight > drawLine(i)){
-            console.log("collided");
+            playerHit = true;
             enemies[i].squareState = 0;
             enemies[i].x = canvas.width - spriteWidth;
+            stateCounter = 0;
+
             life--;
             if(life == 0){
-                view.displayGameOver();
+                //view.displayGameOver("gameOver");
                 //alert("GAME OVER!");
                 document.location.reload();
                 clearInterval(interval); // Needed for Chrome to end game
@@ -358,31 +440,29 @@ function collissionDetection(){
             }
             //enemies[i].squareState = 1;
         }
+
+        //enemy collission
     
         for(var r=0; r<ammoSize; r++) {
             var b = ammo[r];
             if(b.status == 1) {
-                //if(b > b.x && x < b.x+spriteWidth && startNodeY > b.y && drawLine(4) < b.y+spriteHeight) {
                 if(b.x < enemies[i].x + spriteWidth && b.x + spriteWidth > enemies[i].x && b.y < drawLine(i) + spriteHeight && b.y + spriteHeight > drawLine(i)){
 
-                //if(b.x > enemies[i].x && b.x < enemies[i].x+spriteWidth && b.y > drawLine(i) && b.y < drawLine(i)+spriteHeight){
-                //if(startShotX < startNodeX + spriteWidth && startShotX + spriteWidth > startNodeX && playerY < drawLine(4) + spriteHeight && playerY + spriteHeight > drawLine(4)){
-                    //dy = -dy;
                     b.status = 0;
                     //score++;
     
                     console.log("Collission");
                     //shotColor = "yellow";
-                    enemies[i].squareState = 0;
+                    enemies[i].hitState = 1;
                     score = score + 10;
                     scoreTranslator(score);
                     b.x = "x";
-                    enemies[i].x = canvas.width - spriteWidth;
                     //enemies[i].squareState = 1;
-    
-                    if(ammoCount == -1){
-                        ammoCount = 2;
+
+                    if((score % 100) == 0){
+                        speedLevel = speedLevel + 5;
                     }
+    
     
                 }
                 
@@ -392,14 +472,10 @@ function collissionDetection(){
         }
 
     }
-    
-    // if(startShotX < startNodeX + spriteWidth && startShotX + spriteWidth > startNodeX && playerY < drawLine(4) + spriteHeight && playerY + spriteHeight > drawLine(4)){
 
 }
 function drawLife(){
-    // ctx.fonz = "12px Arial";
-    // ctx.fillStyle = "black";
-    // ctx.fillText("Life: " + life, 8, 20);
+
     if(life < 3){
         view.displayLessLife(life);
     }
@@ -414,12 +490,20 @@ function scoreTranslator(num){
     while(x >= 0){
         if(x >= 100000){
             //gameover
+            document.location.reload();
+            clearInterval(interval); // Needed for Chrome to end game
+            startGame = false;
         }
         else if(x >= 10000){
             //numArray.push(x / 10000);
             digit = Math.trunc(x / 10000);
             view.displayDigit("0", digit.toString());
             x = x % 10000;
+            if(x == 0){
+                view.displayDigit("1", "0");
+                view.displayDigit("2", "0");
+                view.displayDigit("3", "0");
+            }
 
         }
         else if(x >= 1000){
@@ -427,6 +511,10 @@ function scoreTranslator(num){
             digit = Math.trunc(x / 1000);
             view.displayDigit("1", digit.toString());
             x = x % 1000;
+            if(x == 0){
+                view.displayDigit("2", "0");
+                view.displayDigit("3", "0");
+            }
 
         }
         else if(x >= 100){
@@ -434,6 +522,9 @@ function scoreTranslator(num){
             digit = Math.trunc(x / 100);
             view.displayDigit("2", digit.toString());
             x = x % 100;
+            if(x == 0){
+                view.displayDigit("3", "0");
+            }
 
         }
         else if(x >= 10){
